@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 interface IClan {
     name: string;
     memberCount: number;
+    image: string;
 }
 
 type IClanModel = mongoose.Model<IClan> & {};
@@ -16,6 +17,10 @@ const schema = new mongoose.Schema({
     memberCount: {
         type: Number,
         default: 0,
+    },
+    image: {
+        type: String,
+        default: "",
     },
 });
 

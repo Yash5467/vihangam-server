@@ -33,7 +33,8 @@ export const studentClanController = asyncHandler(
                 $project: {
                     _id: 0,
                     clanName: "$clan.name",
-                    memberCount:"$clan.memberCount"
+                    memberCount:"$clan.memberCount",
+                    clanLogo:"$clan.image"
                 }
             }
         ]);
