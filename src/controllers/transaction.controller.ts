@@ -31,22 +31,24 @@ export const transactionEKQRHookController = asyncHandler(
                 paymentDetails: { ...paymentData }
             });
 
-            if (!order)
+            if (!order) {
                 logger.warn("Badge order not found for successful payment webhook", {
                     orderId: paymentData.udf1,
                     transactionId: paymentData?.client_txn_id,
                 });
-            else
-                logger.info("Badge order marked as paid", {
-                    orderId: order._id.toString(),
-                    orderNumber: order.orderNumber,
-                    studentId: order.studentId.toString(),
-                    clanId: order.clanId.toString(),
-                    amount: order.totalAmount,
-                });
+                return;
+            }
+
+            logger.info("Badge order marked as paid", {
+                orderId: order._id.toString(),
+                orderNumber: order.orderNumber,
+                studentId: order.studentId.toString(),
+                clanId: order.clanId.toString(),
+                amount: order.totalAmount,
+            });
 
             await Badge.findByIdAndUpdate(order?.badgeId, {
-                $inc: { stock: -paymentData.quantity }
+                $inc: { stock: -order?.quantity }
             }, {
                 session: session
             });
@@ -54,7 +56,7 @@ export const transactionEKQRHookController = asyncHandler(
             logger.info("Badge stock updated after successful payment", {
                 orderId: paymentData.udf1,
                 badgeId: order?.badgeId?.toString?.() || null,
-                quantityDeducted: paymentData.quantity,
+                quantityDeducted: order?.quantity,
             });
 
             await session.commitTransaction();
