@@ -1,0 +1,1 @@
+import "@/workers/order/badge.order.queue.worker.js"

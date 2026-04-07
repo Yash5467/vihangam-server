@@ -7,6 +7,7 @@ interface IStudent {
     branch: string;
     course: string;
     clanId: mongoose.Types.ObjectId | null;
+    phoneNumber?: string;
 }
 
 type IStudentModel = mongoose.Model<IStudent> & {};
@@ -39,6 +40,10 @@ const schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Clan",
         default: null,
+    },
+    phoneNumber: {
+        type: String,
+        required: false,
     },
 });
 

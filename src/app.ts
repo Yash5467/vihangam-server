@@ -8,6 +8,11 @@ import { connectDB } from "@/lib/db.js"
 // import { rateLimiter } from "@/middlewares/rate-limiter.js";
 import dotenv from "dotenv"
 import { studentRouter } from "./routes/student.routes.js"
+import { eventRouter } from "./routes/event.routes.js"
+import { registrationRouter } from "./routes/registration.routes.js"
+import { badgeRouter } from "./routes/badge.routes.js"
+import "@/workers/index.js"
+import { transactionRouter } from "./routes/transaction.route.js"
 
 dotenv.config({ path: './.env', });
 
@@ -33,6 +38,12 @@ app.use(morgan('dev'));
 
 
 app.use("/student",studentRouter);
+app.use("/event", eventRouter);
+app.use("/registration", registrationRouter);
+app.use("/badge", badgeRouter);
+app.use("/transaction", transactionRouter);
+
+
 app.get("/*splat", (req, res) => {
   res.status(404).json({
     success: false,

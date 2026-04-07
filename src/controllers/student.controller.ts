@@ -33,8 +33,8 @@ export const studentClanController = asyncHandler(
                 $project: {
                     _id: 0,
                     clanName: "$clan.name",
-                    memberCount:"$clan.memberCount",
-                    clanLogo:"$clan.image"
+                    memberCount: "$clan.memberCount",
+                    clanLogo: "$clan.image"
                 }
             }
         ]);
@@ -45,3 +45,22 @@ export const studentClanController = asyncHandler(
         return res.status(200).json(new ApiResponse(studentClan, "Clan retrieved successfully", 200));
     }
 )
+
+export const studentLookupController = asyncHandler(
+    async (req: CustomRequest<z.infer<typeof studentClanControllerValidator>>, res) => {
+        const [student] = await Student.aggregate([
+            {
+                $match: {
+                    enrollmentNumber: req.validatedBody?.enrollmentNumber
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: 1,
+                }
+            }
+        ]);
+
+        return res.status(200).json(new ApiResponse(student, "Student lookup successful", 200));
+ });
