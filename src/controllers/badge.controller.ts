@@ -96,6 +96,7 @@ export const orderBadgeController = asyncHandler(
             paymentStatus: "pending",
             notes,
             paymentInitiatedAt: new Date(),
+            badgeId: badge._id,
         });
 
         student.phoneNumber = req.validatedBody?.phoneNumber || student.phoneNumber;
@@ -108,7 +109,7 @@ export const orderBadgeController = asyncHandler(
             customer_mobile: req.validatedBody?.phoneNumber || "",
             customer_email: student.email,
             udf1: order._id.toString(),
-            redirect_url: `https://vihangam.clashx24.in/badge/payment/success`,
+            redirect_url: `https://vihangam.clashx24.in/badges/payment/success`,
             client_txn_id: order._id,
             p_info: `Purchase of ${quantity} ${badge.name} badge(s) by ${student.name}`,
         });

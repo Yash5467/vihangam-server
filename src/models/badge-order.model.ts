@@ -7,6 +7,7 @@ type BadgeOrderStatus = (typeof BADGE_ORDER_STATUSES)[number];
 type BadgePaymentStatus = (typeof BADGE_PAYMENT_STATUSES)[number];
 
 interface IBadgeOrder {
+    badgeId: mongoose.Types.ObjectId;
     orderNumber: string;
     studentId: mongoose.Types.ObjectId;
     clanId: mongoose.Types.ObjectId;
@@ -35,6 +36,7 @@ export type IBadgeOrderSchema = mongoose.Model<IBadgeOrder> & {};
 
 const badgeOrderSchema = new mongoose.Schema<IBadgeOrder>(
     {
+        badgeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Badge" },
         orderNumber: { type: String, required: true, trim: true, uppercase: true, unique: true },
         studentId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Student" },
         clanId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Clan" },

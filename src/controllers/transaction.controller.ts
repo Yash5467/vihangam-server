@@ -1,5 +1,6 @@
 import { asyncHandler } from "@/middlewares/error.js";
 import { BadgeOrder } from "@/models/badge-order.model.js";
+import { Badge } from "@/models/badge.model.js";
 import { BadgeOrderQueue } from "@/queue/order/badge-order.queue.js";
 import { CustomRequest } from "@/types/types.js";
 import { ApiResponse } from "@/utils/responseHandler.js";
@@ -14,10 +15,14 @@ export const transactionEKQRHookController = asyncHandler(
             const session = await mongoose.startSession();
             session.startTransaction();
 
-            await BadgeOrder.findByIdAndUpdate(paymentData.udf1, {
+            const order = await BadgeOrder.findByIdAndUpdate(paymentData.udf1, {
                 orderStatus: 'paid',
                 paymentStatus: 'success',
                 paymentDetails: { ...paymentData }
+            });
+
+            await Badge.findByIdAndUpdate(order?.badgeId, {
+                $inc: { stock: -paymentData.quantity }
             });
 
             await session.commitTransaction();
