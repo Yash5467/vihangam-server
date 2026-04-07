@@ -3,7 +3,6 @@ import express from "express"
 import helmet from "helmet"
 import cors from 'cors'
 import { errorMiddleware } from "@/middlewares/error.js"
-import morgan from "morgan"
 import { connectDB } from "@/lib/db.js"
 // import { rateLimiter } from "@/middlewares/rate-limiter.js";
 import dotenv from "dotenv"
@@ -13,12 +12,16 @@ import { registrationRouter } from "./routes/registration.routes.js"
 import { badgeRouter } from "./routes/badge.routes.js"
 import "@/workers/index.js"
 import { transactionRouter } from "./routes/transaction.route.js"
+import logger from "@/utils/logger.js"
+import { requestLoggerMiddleware } from "@/middlewares/request-logger.js"
 
 dotenv.config({ path: './.env', });
 
 export const envMode = process.env.NODE_ENV?.trim() || 'DEVELOPMENT';
 const port = process.env.PORT || 3000;
 const app = express();
+
+app.disable("x-powered-by");
 
 
 
@@ -33,7 +36,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: process.env.ORIGIN!, credentials: true }));
-app.use(morgan('dev'));
+app.use(requestLoggerMiddleware);
 // app.use(rateLimiter());
 
 
@@ -56,11 +59,25 @@ app.use(errorMiddleware);
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(port, () => console.log('Server is working on Port:' + port + ' in ' + envMode + ' Mode.'));
+    app.listen(port, () => {
+      logger.info("Server started", {
+        port,
+        envMode,
+      });
+    });
   } catch (error) {
-    console.error('Failed to connect database. Server not started.', error);
+    logger.error("Failed to connect database. Server not started.", { error });
     process.exit(1);
   }
 };
 
 startServer();
+
+process.on("unhandledRejection", (reason) => {
+  logger.error("Unhandled promise rejection", { reason });
+});
+
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught exception", { error });
+  process.exit(1);
+});

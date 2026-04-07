@@ -1,6 +1,7 @@
 import { Badge } from "@/models/badge.model.js";
 import { BadgeOrder } from "@/models/badge-order.model.js";
 import { Clan } from "@/models/clan.model.js";
+import logger from "@/utils/logger.js";
 import { resendClient } from "@/lib/resend.js";
 import { queueHandler } from "@/utils/queueHandler.js";
 import { Worker } from "bullmq";
@@ -11,10 +12,18 @@ export interface IBadgeOrderJobData {
     orderId: string;
 }
 
+logger.info("Badge order queue worker starting", { queueName: "badge-order-queue" });
+
 
 new Worker(
     "badge-order-queue",
     queueHandler<IBadgeOrderJobData>(async (job) => {
+        logger.info("Badge order job received", {
+            queueName: job.queueName,
+            jobId: job.id,
+            orderId: job.data.orderId,
+        });
+
         const order = await BadgeOrder.findById(job.data.orderId).lean();
 
         if (!order)
@@ -62,6 +71,14 @@ new Worker(
                     currency: order.currency,
                 },
             },
+        });
+
+        logger.info("Badge order email sent", {
+            queueName: job.queueName,
+            jobId: job.id,
+            orderId: order._id.toString(),
+            studentEmail: student.email,
+            badgeName: badge.name,
         });
     }),
     {
