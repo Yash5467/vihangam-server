@@ -6,8 +6,11 @@ import { CustomRequest } from "@/types/types.js";
 import { ApiResponse } from "@/utils/responseHandler.js";
 import logger from "@/utils/logger.js";
 import mongoose from "mongoose";
-
-
+import axios from "axios";
+import { transactionStatusControllerValidator } from "@/validators/transaction.validator.js";
+import z from "zod";
+import "dotenv/config";
+import { format } from "date-fns";
 
 export const transactionEKQRHookController = asyncHandler(
     async (req: CustomRequest, res) => {
@@ -101,5 +104,27 @@ export const transactionEKQRHookController = asyncHandler(
         }
 
         return res.status(200).json(new ApiResponse(null, "Transaction status updated successfully", 200));
+    }
+)
+
+export const transactionStatusController = asyncHandler(
+    async (req: CustomRequest<z.infer<typeof transactionStatusControllerValidator>>, res) => {
+        const resposne = await axios.post("https://api.ekqr.in/api/check_order_status", {
+            key: process.env.PAYMENT_KEY,
+            client_txn_id: req.validatedBody?.transactionId,
+            txn_date: format(new Date(), "dd-MM-yyyy")
+        });
+
+        logger.info("Transaction status checked with EKQR", {
+            transactionId: req.validatedBody?.transactionId,
+            ekqrResponseStatus: resposne?.data?.status,
+            ekqrResponseData: resposne?.data,
+        });
+
+        return res.status(200).json(new ApiResponse({
+            success: resposne?.data?.data?.status === "success",
+            amount: resposne?.data?.data?.amount,
+            email: resposne?.data?.data?.customer_email,
+        }, "Transaction status fetched successfully", 200));
     }
 )

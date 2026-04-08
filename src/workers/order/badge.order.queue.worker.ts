@@ -50,7 +50,7 @@ new Worker(
 
         await resendClient.emails.send({
             from: process.env.RESEND_FROM_EMAIL as string,
-            to: student.email,
+            to: student.email.toLowerCase(),
             subject: `Badge order Successful for ${badge.name}`,
             template: {
                 id: process.env.RESEND_BADGE_ORDER_TEMPLATE_ID as string,

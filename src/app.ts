@@ -5,7 +5,6 @@ import cors from 'cors'
 import { errorMiddleware } from "@/middlewares/error.js"
 import morgan from "morgan"
 import { connectDB } from "@/lib/db.js"
-// import { rateLimiter } from "@/middlewares/rate-limiter.js";
 import dotenv from "dotenv"
 import { studentRouter } from "./routes/student.routes.js"
 import { eventRouter } from "./routes/event.routes.js"
@@ -36,7 +35,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: process.env.ORIGIN!, credentials: true }));
 app.use(morgan('dev'));
-// app.use(rateLimiter());
 
 
 app.use("/student",studentRouter);
