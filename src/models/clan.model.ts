@@ -4,6 +4,7 @@ interface IClan {
     name: string;
     memberCount: number;
     image: string;
+    groupLink: string
 }
 
 type IClanModel = mongoose.Model<IClan> & {};
@@ -22,6 +23,10 @@ const schema = new mongoose.Schema({
         type: String,
         default: "",
     },
+    groupLink: {
+        type: String,
+        default: "",
+    }
 });
 
 schema.index({ name: 1 });
